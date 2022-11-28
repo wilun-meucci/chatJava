@@ -17,7 +17,7 @@ public class App
     {
         Scanner keyboard = new Scanner(System.in);
         String userString;
-
+        final boolean userNameExist = false;
         Socket socket = new Socket(InetAddress.getLocalHost(), 34567);
         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
         //DataInputStream  in = new DataInputStream(socket.getInputStream());
@@ -27,18 +27,22 @@ public class App
         System.out.println("dopo input");
     
         while (true)
-        {
+        {//ciao 
             /*
              * 
              * { 
-            “sendTo”: “#”;
+            “sendTo”: "*”;
             "type":"command",
             "text":"access", 
             "userName": "dawid"   username da validare dal server
 }
              */
             Thread.sleep(500);
-            login();
+            if (!userNameExist)
+            {
+                login();
+            }
+            
             userString = "";
 
             
@@ -60,33 +64,43 @@ public class App
         socket.close();
     }
 
-    private static void login() {
+   private static void login() {
+        String userName = "";
+         while(true)
+        {
         Scanner keyboard = new Scanner(System.in);
-        System.out.print("Inserisci userName da inviare al server" + '\n');
-        String userName = keyboard.next();
+        System.out.print("Inserisci userName da inviare al server" + '\n' + "numero caratteri minimo: 4" + '\n' + "NO SPAZI" +'\n');
+        userName = keyboard.next();
         if (isValidUserName(userName))
-        {}
+        {
+            System.out.println("userName inserito correttamente!");
+            break;
+        }
+        else
+        System.out.println("userName inserito errato");
+        }
+
+        Message m1 = new Message("#","command","access",userName);
+        Message m2 = new Message("#","command","access",userName);
+        
     }
 
     private static boolean isValidUserName(String userName) {
 
-        Pattern pattern = Pattern.compile("[ \t\n\x0B\f\r]", Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("[ ]", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(userName);
         
-        if (!matcher.find()) {
-            System.out.println("ok");
-        }
-        if(userName.equals("*") 
-        || userName.equals("#") 
-        || userName.equals("") 
-        || userName.equals(" ") 
-        )
+        if(userName.length()>4)
         {
-            return false;
+            if (!matcher.find()) 
+            {
+                return true;
+            }
+            else 
+                return false;
         }
-        return true;
-        
+        else
+        return false;
     }
-
 }
 

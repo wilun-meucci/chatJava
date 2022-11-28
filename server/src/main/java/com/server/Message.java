@@ -1,4 +1,4 @@
-package com.client;
+package com.server;
 
 public class Message {
     private String sendTo; // destinatario

@@ -14,6 +14,7 @@ public class ManagementServerThread extends Thread
     public void addClient(Socket client)
     {
         clientsArray.add(client);
+        
     }
     public void closeClient(ServerSocket server) throws IOException
     {
