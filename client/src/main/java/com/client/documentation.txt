@@ -1,0 +1,35 @@
+username regole: 
+- min 4 char
+- no spazio
+
+cosa devi fare clinet:
+- inserire il login 1 volta
+- controllare che il username sia valido nel login e rimanere li frinche che non è valido
+- creare il pacchetto da inviare al server tramite classe Message
+Message m1 = new Message("#","command", "access",userName);
+
+V FATTO
+----------------------------------------------------------------------------------------------------------------------
+
+-assegnare alle parole chiavi i comandi relativi 
+-1 campo minimo , 3 campi massimi divisi da una spazio ciascuno
+-se scrivo solo un messaggio lo manda a tutti (es:   ciao), se scritto così manda ciao a tutti
+-esempio di scrittura completa (* message "bella")
+- richiedo al server-list,access la lista dei partecipanti (# /list)
+
+-# (al server)  -* (a tutti)  -nome (a singolo)(avrò un'array di utenti(String),devo controllare l'esistenza del nome all'inserimento)
+
+(
+    if (sendTo == * || sendTo==#)
+    {
+
+    }
+    else
+    {
+        for(int i==0;i<array.size;i++)
+        {
+            sendTo = array();
+        }
+    }
+)
+--------------------------------------------------------------------------------------------------------------------------

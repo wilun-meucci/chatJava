@@ -7,6 +7,8 @@ public class Message {
     private String userName; //username del client
 
     
+    public Message() {
+    }
     public Message(String sendTo, String type, String textString, String userName) {
         this.sendTo = sendTo;
         this.type = type;

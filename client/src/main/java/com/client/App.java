@@ -6,6 +6,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.regex.*;
 
@@ -13,11 +14,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class App 
 {
+
+    //questa variabile diventa true quando il server ha accettato la login (username valido per il server)
+    //sarà modificato dal ThreadClientInput alla ricezione del messaggio login ok
+    // 0: non ancora inviato
+    // 1: inviato e risposta non ancora ricevuta
+    // 2: inviato e accettato
+    // 3 inviato e non accettato
+    public static Interger userStatus = 0;
+
+
     public static void main( String[] args ) throws IOException, InterruptedException
     {
         Scanner keyboard = new Scanner(System.in);
         String userString;
-        final boolean userNameExist = false;
+        
         Socket socket = new Socket(InetAddress.getLocalHost(), 34567);
         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
         //DataInputStream  in = new DataInputStream(socket.getInputStream());
@@ -37,11 +48,11 @@ public class App
             "userName": "dawid"   username da validare dal server
 }
              */
-            Thread.sleep(500);
-            if (!userNameExist)
-            {
+            
+            do {
                 login();
-            }
+                Thread.sleep(500);
+            } while (!userConnected);
             
             userString = "";
 
@@ -57,7 +68,14 @@ public class App
                 
                 
             }
-            
+
+            Message m1 = new Message("#","command","access","userName");
+
+            if(m1.getSendTo().equals("*"))
+            {
+                //messaggio rivolto a tutti
+
+            }
             
         }
         
@@ -78,11 +96,14 @@ public class App
         }
         else
         System.out.println("userName inserito errato");
-        }
+        }   
 
-        Message m1 = new Message("#","command","access",userName);
-        Message m2 = new Message("#","command","access",userName);
-        
+    }
+
+    private static void nameList()
+    {
+        ArrayList <String> nomi=new ArrayList <String>();
+
     }
 
     private static boolean isValidUserName(String userName) {
