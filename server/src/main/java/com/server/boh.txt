@@ -1,0 +1,9 @@
+
+iff sendTo == #
+if sendTO == *
+
+for ()
+
+{
+    se singleUser == getNameByList()
+}

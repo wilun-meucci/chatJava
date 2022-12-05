@@ -23,7 +23,7 @@ public class ManagementServerThread extends Thread
             out.writeBytes("morto" + '\n');
             clients.close();
             System.out.println("chiuso");
-
+            
         }
         server.close();
 

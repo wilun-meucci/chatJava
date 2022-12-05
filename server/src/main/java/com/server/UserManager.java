@@ -9,15 +9,24 @@ public class UserManager {
 
     public static boolean adduser(String username, ServerThread t) {
 
-        // se in connectedUsers c'è già una chiave con username ritorno false
-        if (connectedUsers.containsKey(username)) {
-            return false;
-        } else {
+        if(!checkUser(username))
+        {
             connectedUsers.put(username, t);
             return true;
         }
+        return false;
 
 
+
+    }
+
+
+
+    public static boolean checkUser(String username)
+    {
+        if (connectedUsers.containsKey(username))
+            return true;
+        return false;
     }
 
 

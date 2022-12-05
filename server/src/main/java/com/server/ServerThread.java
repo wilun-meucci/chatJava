@@ -6,16 +6,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.regex.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 public class ServerThread extends Thread{
     public Socket client;
     public  ServerSocket server;
-    public ManagementServerThread m;
-    ServerThread (Socket client, ManagementServerThread m, ServerSocket server)
+    ServerThread (Socket client,  ServerSocket server)
     {
         this.client = client;
-        this.m = m;
+        
         this.server = server;
     }
     public void run() {
@@ -52,14 +52,17 @@ public class ServerThread extends Thread{
             */
             userString = in.readLine();
             System.out.println("Stringa ricevuta: " + userString);
-            Message m = json.readValue(userString, Message.class);
-            ControlSendTo(m);
+            Message paccheto = json.readValue(userString, Message.class);
+            if(!isValidPackege(paccheto))
+            break;
+            ControlSendTo(paccheto);
             
 
         }
         
     }
-/*
+
+    /*
              * 
              * { 
             “sendTo”: "#”;
@@ -73,6 +76,84 @@ public class ServerThread extends Thread{
         String text = m.getTextString();
         String userName = m.getUserName();
              */
+    private boolean isValidPackege(Message p) 
+    {
+        String sendTo = p.getSendTo();
+        String type = p.getType();
+        String text = p.getTextString();
+        String userName = p.getUserName();
+
+        if (isNullCamp(sendTo,type,text,userName))
+            return false;
+
+        if (!isValidSendTo(sendTo))
+            return false;
+        if (!isValidType(type))
+            return false;
+        if (!isValidText(text))
+            return false;
+        if (!isValidUsername(userName))
+            return false;
+        
+
+        
+        Pattern pattern = Pattern.compile("[ ]", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(sendTo);
+        
+        if(sendTo.length()>4)
+        {
+            if (!matcher.find()) 
+            {
+                return true;
+            }
+            else 
+                return false;
+                
+        }
+        return true;
+    }
+    
+    
+    
+    private boolean isValidSendTo(String sendTo) 
+    {
+        if (sendTo.equals("#") || sendTo.equals("*"))
+            return true;
+        if (sendTo.length()>4)
+        {
+            if (userNameExist(sendTo))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    private boolean isValidType(String type) 
+    {
+        if(type.equals("access") 
+        || type.equals("command"))
+            return true;
+        return false;
+        
+    }
+    private boolean isValidText(String text) {
+        return false;
+    }
+    private boolean isValidUsername(String userName) {
+        return false;
+    }
+    private boolean isNullCamp(String sendTo, String type, String text, String userName) 
+    {
+        if (sendTo.isEmpty() || sendTo.equals(""))
+            return true;
+        if (type.isEmpty() || type.equals(""))
+            return true;
+        if (text.isEmpty() || text.equals(""))
+            return true;
+        if (userName.isEmpty() || userName.equals(""))
+            return true;
+        return false;
+    }
     public void ControlSendTo (Message messageObj)
     {
         
@@ -116,7 +197,6 @@ public class ServerThread extends Thread{
     }
     private boolean userNameExist(String userName) //call messageToServer
     {
-        boolean aggiunto = UserManager.adduser(userName, this);
-        return !aggiunto;
+        return UserManager.checkUser(userName); //true if not exist || false if exist
     }
 }
