@@ -1,6 +1,8 @@
 package com.server;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 
 public class UserManager {
 
@@ -15,11 +17,11 @@ public class UserManager {
             return true;
         }
         return false;
-
-
-
     }
-
+    public static Set<String> getUserList()
+    {
+        return connectedUsers.keySet();
+    }
 
 
     public static boolean checkUser(String username)

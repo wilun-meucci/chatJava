@@ -7,7 +7,7 @@ public class mainThreadServer {
 
     public Socket start() throws IOException {
         ServerSocket server = new ServerSocket(34567);
-        ManagementServerThread m = new ManagementServerThread(server);
+        
 
         for (;;) {
             Socket client = server.accept();
