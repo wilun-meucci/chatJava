@@ -46,21 +46,46 @@ public class InputThreadClient extends Thread {
     }
 
     public Message riceviMessaggio() throws IOException {
+        /*
         // leggo il messaggio sotto forma di stringa dal server
         String msgRicevuto = in.readLine();
         // deserializzo il messaggio (String -> Message)
         Message m = mapper.readValue(msgRicevuto, Message.class);
         return m;
+        */
+        String serverString = "";
+        ObjectMapper json = new ObjectMapper();
+        serverString = in.readLine();
+        Message pacchetto = json.readValue(serverString, Message.class);
+        return pacchetto;
     }
 
-     /**
+    private void startListening() throws IOException {
+        Message pacchetto = riceviMessaggio();
+        //controllo che il pacchetto sia formatto correttamente per me
+
+        //ricreo i singoli campi
+
+        //controllo che tipo di messagio sia
+        controllType();
+            
+    }
+
+     private void controllType() {
+        //controllo il tipo e mando nella funzione del giusto tipo
+
+        
+    }
+
+
+    /**
      * Thread: il thread viene avviato dopo la login
      */
     public void run() {
 
         for (;;) {
             try {
-                Message m = riceviMessaggio();
+                startListening();
 
                 // in base al messaggio ricevuto decidi cosa fare
             } catch (IOException e) {
@@ -68,5 +93,8 @@ public class InputThreadClient extends Thread {
             }
         }
     }
+
+
+    
 
 }

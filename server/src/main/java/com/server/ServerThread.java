@@ -56,7 +56,11 @@ public class ServerThread extends Thread {
             System.out.println("Stringa ricevuta: " + userString);
             Message paccheto = json.readValue(userString, Message.class);
             if (!isValidPacket(paccheto))
+            {
+                System.out.println("dentro if ");
                 break;
+            }
+                
             ControlSendTo(paccheto);
 
         }
@@ -154,6 +158,7 @@ public class ServerThread extends Thread {
     }
 
     public void ControlSendTo(Message messageObj) {
+        System.out.println("dentro ControlSendTo ");
         if (messageObj.getSendTo().equals("#")) {
             messageToServer(messageObj);
         } else if (messageObj.getSendTo().equals("*")) {

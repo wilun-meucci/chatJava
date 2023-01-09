@@ -23,23 +23,25 @@ public class App {
     public static Integer userStatus = 0;
     static boolean userConnected = false;
     static Scanner keyboard = new Scanner(System.in);
-
+    public static Socket socket;
     static InputThreadClient inputClient;
-
+    public  static DataOutputStream out ;
     public static void main(String[] args) throws IOException, InterruptedException {
-
+        
         String userString;
 
         // creazione socket
-        Socket socket = new Socket(InetAddress.getLocalHost(), 34567);
-
+        socket = new Socket(InetAddress.getLocalHost(), 34567);
+        out = new DataOutputStream(socket.getOutputStream());
         // input dove arrivano le risposte del server
         inputClient = new InputThreadClient(socket);
-
+        
         login();
 
         // lo start gestisce i messaggi in arrivo, lo avviamo dopo aver fatto la login
         inputClient.start();
+
+        startChat();
 
 
 
@@ -48,7 +50,24 @@ public class App {
 
     }
 
-    public static void login() {
+    private static void startChat() 
+    {
+        while (true)
+        {
+            //print regole per come chattare
+
+            //prendo il imput del utente
+                //String stringMessage = keyboard.next();
+            //controlli che il input sia formato corretamente
+
+            // formo il messagio 
+
+            //invio messagio
+                //sendMessage(m);
+        }
+    }
+
+    public static void login() throws IOException {
 
         do {
             System.out.print("Inserisci userName da inviare al server" + '\n' + "numero caratteri minimo: 4" + '\n'
@@ -66,22 +85,44 @@ public class App {
                 m.setTextString("access");
                 m.setUserName(userName);
 
-                inputClient.inviaMessaggio(m);
+                sendMessage(m);
 
                 //risposta del server alla login
-                Messagge ricevuto = inputClient.riceviMessaggio();
+                if(isValidToServer())
+                {
+                    System.out.println("nome valido");
+                    // roba visiva dove dici al client che si è collegato
+                    break;
+                }
 
 
                 //verificare la risposta del server
 
-                break;
+                
             } else {
                 System.out.println("userName inserito errato");
             }
-        } while //fino a quando il server non dice ok(wilun mi deve dire quando è ok)
+        } while(true); //fino a quando il server non dice ok(wilun mi deve dire quando è ok)
     }
 
-    
+    private static void  sendMessage(Message m) 
+     {
+        try {
+            
+            ObjectMapper json = new ObjectMapper();
+            String j = json.writeValueAsString(m);
+            out.writeBytes(j + '\n');
+        } catch (Exception a) {
+        }
+    }
+    private static boolean isValidToServer() throws IOException
+    {
+        Message ricevuto = inputClient.riceviMessaggio();
+        if(ricevuto.getTextString() == "OK")
+            return true;
+        
+        return false;
+    }
 
     // controllo validità username (per il client)
     private static boolean isValidUserName(String userName) {
