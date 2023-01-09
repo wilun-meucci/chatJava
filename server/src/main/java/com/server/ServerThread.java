@@ -13,11 +13,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ServerThread extends Thread {
     public Socket client;
     public ServerSocket server;
+    DataOutputStream out;
+    BufferedReader in;
 
-    ServerThread(Socket client, ServerSocket server) {
+    ServerThread(Socket client, ServerSocket server) throws IOException {
         this.client = client;
 
         this.server = server;
+
+        this.out = new DataOutputStream(client.getOutputStream());
+        this.in = new BufferedReader(new InputStreamReader(client.getInputStream()));
     }
 
     public void run() {
@@ -159,11 +164,43 @@ public class ServerThread extends Thread {
     }
 
     private void messageToSingle(Message messageObj) {
+        String sendTo = messageObj.getSendTo();
+        String type = messageObj.getType();
+        String text = messageObj.getTextString();
+        String userName = messageObj.getUserName();
+        if (userNameExist(sendTo))
+        {
+            Message m = new Message();
+            m.setUserName(sendTo);
+            m.setTextString(text);
+            m.setType(type);
+            m.setSendTo(userName);
+            ServerThread  clientToSend = UserManager.getConnectedUsers().get(sendTo);
+            clientToSend.sendMessage(m);
 
+        }
     }
 
     private void messageToAll(Message messageObj) {
         // # /list
+        String sendTo = messageObj.getSendTo();
+        String type = messageObj.getType();
+        String text = messageObj.getTextString();
+        String userName = messageObj.getUserName();
+
+        Message m = new Message();
+            m.setUserName(sendTo);
+            m.setTextString(text);
+            m.setType(type);
+            m.setSendTo(userName);
+        
+        for (ServerThread clientToSend : UserManager.getConnectedUsers().values()) 
+        {
+            clientToSend.sendMessage(m);
+        }
+
+        
+
     }
 
     private void messageToServer(Message message) {
@@ -178,7 +215,7 @@ public class ServerThread extends Thread {
                     m.setTextString(text);
                     m.setType(type);
                     m.setSendTo(userName);
-                    sendMessage(m);
+                    this.sendMessage(m);
                 }
             }
             if (text.equals("list")) {
@@ -189,14 +226,14 @@ public class ServerThread extends Thread {
                 m.setSendTo(userName);
                 m.setContent(UserManager.getUserList());
 
-                sendMessage(m);
+                this.sendMessage(m);
             } else {
                 Message m = new Message();
                 m.setSendTo(userName);
                 m.setType("message");
                 m.setTextString("KO");
                 m.setUserName(message.getSendTo());
-                sendMessage(m);
+                this.sendMessage(m);
             }
         } else {
             Message m = new Message();
@@ -204,19 +241,18 @@ public class ServerThread extends Thread {
             m.setType("message");
             m.setTextString("KO");
             m.setUserName(message.getSendTo());
-            sendMessage(m);
+            this.sendMessage(m);
         }
     }
 
-    private void sendMessage(Message m) 
-     {
+    private void sendMessage(Message m) {
         try {
-            DataOutputStream out = new DataOutputStream(this.client.getOutputStream());
             ObjectMapper json = new ObjectMapper();
             String j = json.writeValueAsString(m);
             out.writeBytes(j + '\n');
         } catch (Exception a) {
         }
+        
     }
 
     private boolean userNameExist(String userName) // call messageToServer

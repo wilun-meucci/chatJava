@@ -24,6 +24,14 @@ public class UserManager {
     }
 
 
+
+    public static HashMap<String, ServerThread> getConnectedUsers() {
+        return connectedUsers;
+    }
+    public static void setConnectedUsers(HashMap<String, ServerThread> connectedUsers) {
+        UserManager.connectedUsers = connectedUsers;
+    }
+    
     public static boolean checkUser(String username)
     {
         if (connectedUsers.containsKey(username))
