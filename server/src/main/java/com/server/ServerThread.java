@@ -209,21 +209,25 @@ public class ServerThread extends Thread {
     }
 
     private void messageToServer(Message message) {
+        System.out.println("dentro messageToServer ");
         String type = message.getType();
         String text = message.getTextString();
         String userName = message.getUserName();
         if (type.equals("command")) {
+            System.out.println("dentro command ");
             if (text.equals("access")) {
+                System.out.println("dentro access ");
                 if (checkTheAccess(userName)) {
+                    System.out.println("dentro checkTheAccess(userName) ");
                     Message m = new Message();
                     m.setUserName(message.getSendTo());
-                    m.setTextString(text);
+                    m.setTextString("OK");
                     m.setType(type);
                     m.setSendTo(userName);
                     this.sendMessage(m);
                 }
             }
-            if (text.equals("list")) {
+            else if(text.equals("list")) {
                 Message m = new Message();
                 m.setUserName(message.getSendTo());
                 m.setTextString(text);
@@ -233,6 +237,7 @@ public class ServerThread extends Thread {
 
                 this.sendMessage(m);
             } else {
+                System.out.println("dentro list else ");
                 Message m = new Message();
                 m.setSendTo(userName);
                 m.setType("message");
@@ -241,6 +246,7 @@ public class ServerThread extends Thread {
                 this.sendMessage(m);
             }
         } else {
+            System.out.println("dentro command else ");
             Message m = new Message();
             m.setSendTo(userName);
             m.setType("message");
@@ -251,10 +257,14 @@ public class ServerThread extends Thread {
     }
 
     private void sendMessage(Message m) {
+        System.out.println("dentro sendMessage ");
         try {
+            System.out.println("dentro try ");
             ObjectMapper json = new ObjectMapper();
             String j = json.writeValueAsString(m);
+            System.out.println("dentro try json");
             out.writeBytes(j + '\n');
+            System.out.println("dentro try writeBytes");
         } catch (Exception a) {
         }
         

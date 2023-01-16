@@ -53,10 +53,15 @@ public class InputThreadClient extends Thread {
         Message m = mapper.readValue(msgRicevuto, Message.class);
         return m;
         */
+        System.out.println("dentro  riceviMessaggio");
         String serverString = "";
         ObjectMapper json = new ObjectMapper();
         serverString = in.readLine();
+        System.out.println("dentro  riceviMessaggio readLine");
         Message pacchetto = json.readValue(serverString, Message.class);
+        System.out.println("dentro  riceviMessaggio readValue");
+        System.out.println(pacchetto);
+        System.out.println(pacchetto.getTextString());
         return pacchetto;
     }
 

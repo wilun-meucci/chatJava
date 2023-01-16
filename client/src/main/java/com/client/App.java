@@ -84,11 +84,12 @@ public class App {
                 m.setType("command");
                 m.setTextString("access");
                 m.setUserName(userName);
-
+                System.out.println("dentro login  ");
                 sendMessage(m);
+                System.out.println("dentro login  after sendMessage");
 
                 //risposta del server alla login
-                if(isValidToServer())
+                if(isValidToServer()) // true valido false non valido
                 {
                     System.out.println("nome valido");
                     // roba visiva dove dici al client che si è collegato
@@ -108,7 +109,7 @@ public class App {
     private static void  sendMessage(Message m) 
      {
         try {
-            
+            System.out.println("dentro   sendMessage");
             ObjectMapper json = new ObjectMapper();
             String j = json.writeValueAsString(m);
             out.writeBytes(j + '\n');
@@ -117,8 +118,12 @@ public class App {
     }
     private static boolean isValidToServer() throws IOException
     {
+        System.out.println("dentro login  isValidToServer");
         Message ricevuto = inputClient.riceviMessaggio();
-        if(ricevuto.getTextString() == "OK")
+        System.out.println("dentro login  after riceviMessaggio");
+        System.out.println(ricevuto);
+        System.out.println(ricevuto.getTextString());
+        if(ricevuto.getTextString().equals("OK"))
             return true;
         
         return false;
@@ -130,7 +135,7 @@ public class App {
         Pattern pattern = Pattern.compile("[ ]", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(userName);
 
-        if (userName.length() > 4) {
+        if (userName.length() >= 4) {
             if (!matcher.find()) {
                 return true;
             } else
