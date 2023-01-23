@@ -3,14 +3,8 @@ package com.client;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.Socket;
-import java.net.http.WebSocket.Listener;
-import java.util.Scanner;
 
-import javax.lang.model.util.ElementScanner14;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -39,13 +33,14 @@ public class InputThreadClient extends Thread {
         this.in = new DataInputStream(socket.getInputStream());
     }
 
-
+    /*
     public void inviaMessaggio(Message m) throws IOException {
         // serializzo il messaggio in una stringa (Message -> String)
         String msgDaInviare = mapper.writeValueAsString(m);
         // invio il messaggio al server
         out.writeBytes(msgDaInviare + "\n");
     }
+    */
 
     public Message riceviMessaggio() throws IOException {
         /*
@@ -55,26 +50,25 @@ public class InputThreadClient extends Thread {
         Message m = mapper.readValue(msgRicevuto, Message.class);
         return m;
         */
-        System.out.println("    dentro  riceviMessaggio");
+        
         String serverString = "";
         DataInputStream incopia=in;
-        System.out.println("    dentro  riceviMessaggio serverString");
+       
         ObjectMapper json = new ObjectMapper();
-        System.out.println("    dentro  riceviMessaggio json");
-        System.out.println("    dentro  riceviMessaggio "+incopia.toString());
+       
         serverString = incopia.readLine();
-        System.out.println("    dentro  riceviMessaggio readLine");
+        
         Message pacchetto = json.readValue(serverString, Message.class);
-        System.out.println("    dentro  riceviMessaggio readValue");
-        System.out.println(pacchetto);
-        System.out.println(pacchetto.getTextString());
-        System.out.println("    dentro  riceviMessaggio pacchetto.getString");
+        
+        
+        System.out.println("Risposta server: "+pacchetto.getTextString());
+       
         return pacchetto;
     }
 
     //ascolta quello che il server manda
     private void startListening() throws IOException {
-        System.out.println("    dentro startListening");
+       
         Message pacchetto = riceviMessaggio();
         //ricreo i singoli campi
         String nome = pacchetto.getSendTo();
@@ -84,7 +78,7 @@ public class InputThreadClient extends Thread {
         //controllo che il pacchetto sia formatto correttamente per me
 
         //controllo che tipo di messagio sia
-        System.out.println("    dentro startListening prima di controlType");
+        
         controllType(pacchetto);
             
     }
@@ -97,7 +91,7 @@ public class InputThreadClient extends Thread {
         String stringa = pacchetto.getTextString();
         if(tipo.equals("message"))
         {
-             System.out.println("    dentro if control type message");
+             
             tipoMessaggio(pacchetto);
            
         }
@@ -107,28 +101,28 @@ public class InputThreadClient extends Thread {
     //controlliamo chi ha inviato il messaggio
     private void tipoMessaggio(Message pacchetto) {
         String nome = pacchetto.getSendTo();
-        System.out.println("    dentro tipo messaggio");
+       
         if(nome.equals("*")) //a tutti
         {
             messageToAll(pacchetto);
-            System.out.println("    dentro tipo messaggio if *");
+            
         }
         else if(nome.equals("#"))//al server
         {
             messageToServer(pacchetto);
-            System.out.println("    dentro tipo messaggio if #");
+            
         }
         else 
         {
             messageToSingle(pacchetto);
-            System.out.println("    dentro tipo messaggio else");
+            
         }
 
     }
 
 
     private void messageToSingle(Message pacchetto) {
-        System.out.println("    dentro messageToSingle");
+        
         String nome = pacchetto.getSendTo();
         String tipo = pacchetto.getType();
         String username = pacchetto.getUserName();
@@ -139,7 +133,7 @@ public class InputThreadClient extends Thread {
 
 
     private void messageToServer(Message pacchetto) {
-        System.out.println("    dentro messageToServer");
+        
         String nome = pacchetto.getSendTo();
         String tipo = pacchetto.getType();
         String username = pacchetto.getUserName();
@@ -150,7 +144,7 @@ public class InputThreadClient extends Thread {
 
 
     private void messageToAll(Message pacchetto) {
-        System.out.println("    dentro messageToAll");
+        
         String nome = pacchetto.getSendTo();
         String tipo = pacchetto.getType();
         String username = pacchetto.getUserName();

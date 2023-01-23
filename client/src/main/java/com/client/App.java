@@ -41,7 +41,7 @@ public class App {
 
         // lo start gestisce i messaggi in arrivo, lo avviamo dopo aver fatto la login
         inputClient.start();
-        System.out.println("     dentro prima di startchat");
+        
         startChat();
 
 
@@ -53,10 +53,10 @@ public class App {
 
     private static void startChat() 
     {
-        System.out.println("    dentro startchat");
+        
         while (true)
         {
-            System.out.println("    dentro startchat while");
+            
             //print regole per come chattare
 
             //prendo il imput del utente
@@ -74,8 +74,7 @@ public class App {
             String[] divisione=testo.split("\'");
             String[] parameters=divisione[0].split(" ");
            // System.out.println("    dopo sto cazzo"+parameters[0]+parameters[1]);
-           System.out.println("    dopo sto cazzo "+divisione[0]);
-           System.out.println("    dopo sto cazzo "+divisione[1]);
+           
             if(isValidSendTo(parameters))
             {
                 m.setSendTo(parameters[0]);
@@ -84,10 +83,10 @@ public class App {
             {
                m.setType(parameters[1]);
             }
-                System.out.println("    prima di setTextString(parameters[2])"+divisione[1]);
+                
                m.setTextString(divisione[1]);
              
-               System.out.println("    dopo prima di setUsername(username)"+userName);
+               
                m.setUserName(userName);
 
             /*System.out.println("    dopo keyboard.next "+testo);
@@ -99,7 +98,7 @@ public class App {
             m.setSendTo("#");
             m.setType("message");*/
             sendMessage(m);
-            System.out.println("    dentro startchat while dopo sendmessage");
+            
         }
     }
 
@@ -134,7 +133,7 @@ public class App {
 
     private static String keyboardT() {
         String testo=keyboard.next();
-        System.out.println("    dentro keyboard.next "+testo);
+        
         return null;
     }
 
@@ -146,7 +145,7 @@ public class App {
 
                     //leggo username da tastiera
             String userName = keyboard.nextLine();
-            System.out.println("    dentro login  "+userName);
+        
             if (isValidUserName(userName)) {
                 System.out.println("userName inserito correttamente!");
 
@@ -156,10 +155,9 @@ public class App {
                 m.setType("command");
                 m.setTextString("access");
                 m.setUserName(userName);
-                System.out.println("    dentro login  ");
+                
                 sendMessage(m);
-                System.out.println("    dentro login  after sendMessage");
-
+                
                 //risposta del server alla login
                 if(isValidToServer()) // true valido false non valido
                 {
@@ -189,7 +187,7 @@ public class App {
     private static void  sendMessage(Message m) 
      {
         try {
-            System.out.println("    dentro   sendMessage");
+            
             ObjectMapper json = new ObjectMapper();
             String j = json.writeValueAsString(m);
             out.writeBytes(j + '\n');
@@ -198,11 +196,8 @@ public class App {
     }
     private static boolean isValidToServer() throws IOException
     {
-        System.out.println("    dentro login  isValidToServer");
         Message ricevuto = inputClient.riceviMessaggio();
-        System.out.println("    dentro login  after riceviMessaggio");
-        System.out.println(ricevuto);
-        System.out.println(ricevuto.getTextString());
+        System.out.println("risposta del server dentro isValidToServer"+ricevuto.getTextString());
         if(ricevuto.getTextString().equals("OK"))
             return true;
         

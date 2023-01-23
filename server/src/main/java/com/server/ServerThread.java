@@ -42,7 +42,7 @@ public class ServerThread extends Thread {
         
         ObjectMapper json = new ObjectMapper();
 
-        System.out.println(in);
+        //System.out.println(in);
 
         while (true) {
 
@@ -105,11 +105,14 @@ public class ServerThread extends Thread {
             return true; 
         }
 
+        /*
         if (text.equals("access"))
         {
             System.out.println("    dentro isvalidpackage text.equals");
             return true; 
         }
+
+        */
 
         if (!isValidUsername(userName))
         {
@@ -176,10 +179,17 @@ public class ServerThread extends Thread {
         Pattern pattern = Pattern.compile("[ ]", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(user);
         if (user.length() > 4) {
-            if (!matcher.find())
-                return true;
-            else if (!userNameExist(user) && addUserToClient(user))
-                return true;
+            if (! matcher.find())
+            {
+                System.out.println("    dentro checkTheAccess matcher.find: " +  !matcher.find());
+                if (!userNameExist(user) && addUserToClient(user))
+                {
+                    System.out.println("    dentro checkTheAccess userNameExist(user): " +  userNameExist(user)+ " addUserToClient(user): "+ addUserToClient(user));
+                    return true;
+                }
+                else
+                    return false;
+            }
             else
                 return false;
         } else
