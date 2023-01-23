@@ -57,7 +57,7 @@ public class ServerThread extends Thread {
             Message paccheto = json.readValue(userString, Message.class);
             if (!isValidPacket(paccheto))
             {
-                System.out.println("dentro if ");
+                System.out.println("dentro if while communicate ");
                 break;
             }
                 
@@ -82,31 +82,63 @@ public class ServerThread extends Thread {
         String userName = p.getUserName();
 
         if (isNullCamp(sendTo, type, text, userName))
-            return false;
+        {
+            System.out.println("    dentro isvalidpackage null");
+            return false; 
+        }
 
         if (!isValidSendTo(sendTo))
-            return false;
+        {
+            System.out.println("    dentro isvalidpackage sendto");
+            return false; 
+        }
+
         if (!isValidType(type))
-            return false;
+        {
+            System.out.println("    dentro isvalidpackage type");
+            return false; 
+        }
+;
         if (!isValidText(text))
-            return false;
+        {
+            System.out.println("    dentro isvalidpackage text");
+            return true; 
+        }
+
         if (text.equals("access"))
-            return true;
+        {
+            System.out.println("    dentro isvalidpackage text.equals");
+            return true; 
+        }
+
         if (!isValidUsername(userName))
-            return false;
+        {
+            System.out.println("    dentro isvalidpackage username");
+            return false; 
+        }
+
 
         return true;
     }
 
     private boolean isValidSendTo(String sendTo) {
+        System.out.println("    dopo incima al isvalidsendto "+sendTo);
         Pattern pattern = Pattern.compile("[ ]", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(sendTo);
         if (sendTo.equals("#") || sendTo.equals("*"))
+        {
+        System.out.println("    dopo primo if isvalidsendto");
             return true;
-        if (sendTo.length() > 4) {
-            if (!matcher.find() && userNameExist(sendTo))
-                return true;
         }
+        if (sendTo.length()>= 4) {
+            System.out.println("    dopo secondo if lenght");
+            if (!matcher.find() && userNameExist(sendTo))
+            {
+                System.out.println("    dopo if find");
+                return true;
+            }
+        }
+        System.out.println("    dopo tutti gli if");
         return false;
     }
 
@@ -117,14 +149,15 @@ public class ServerThread extends Thread {
     }
 
     private boolean isValidText(String text) {
-        if (text.length() > 1 && text.equals("list") || text.equals("disconnect") || text.equals("connect")
+        /*if (text.length() > 1 && text.equals("list") || text.equals("disconnect") || text.equals("connect")
                 || text.equals("access"))
             return true;
-        return false;
+        return false;*/return true;
     }
 
     private boolean isValidUsername(String userName) {
-        return userNameExist(userName);
+       // return userNameExist(userName);
+       return true;
     }
 
     private boolean isNullCamp(String sendTo, String type, String text, String userName) {
@@ -272,6 +305,7 @@ public class ServerThread extends Thread {
 
     private boolean userNameExist(String userName) // call messageToServer
     {
+        System.out.println("    dopo usernameexist "+userName);
         return UserManager.checkUser(userName); // true if exist || false if not exist
     }
 }

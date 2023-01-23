@@ -26,6 +26,7 @@ public class App {
     public static Socket socket;
     static InputThreadClient inputClient;
     public  static DataOutputStream out ;
+    public static String userName;
     public static void main(String[] args) throws IOException, InterruptedException {
         
         String userString;
@@ -40,7 +41,7 @@ public class App {
 
         // lo start gestisce i messaggi in arrivo, lo avviamo dopo aver fatto la login
         inputClient.start();
-
+        System.out.println("     dentro prima di startchat");
         startChat();
 
 
@@ -52,8 +53,10 @@ public class App {
 
     private static void startChat() 
     {
+        System.out.println("    dentro startchat");
         while (true)
         {
+            System.out.println("    dentro startchat while");
             //print regole per come chattare
 
             //prendo il imput del utente
@@ -64,7 +67,75 @@ public class App {
 
             //invio messagio
                 //sendMessage(m);
+
+
+            String testo =keyboard.nextLine();
+            Message m = new Message();
+            String[] divisione=testo.split("\'");
+            String[] parameters=divisione[0].split(" ");
+           // System.out.println("    dopo sto cazzo"+parameters[0]+parameters[1]);
+           System.out.println("    dopo sto cazzo "+divisione[0]);
+           System.out.println("    dopo sto cazzo "+divisione[1]);
+            if(isValidSendTo(parameters))
+            {
+                m.setSendTo(parameters[0]);
+            }
+            if(isValidType(parameters,divisione))
+            {
+               m.setType(parameters[1]);
+            }
+                System.out.println("    prima di setTextString(parameters[2])"+divisione[1]);
+               m.setTextString(divisione[1]);
+             
+               System.out.println("    dopo prima di setUsername(username)"+userName);
+               m.setUserName(userName);
+
+            /*System.out.println("    dopo keyboard.next "+testo);
+         
+            System.out.println("    dopo Message  "+testo);
+            m.setTextString(testo);
+            System.out.println("    dopo keyboard.next "+m.getTextString());
+            m.setUserName("pacio");
+            m.setSendTo("#");
+            m.setType("message");*/
+            sendMessage(m);
+            System.out.println("    dentro startchat while dopo sendmessage");
         }
+    }
+
+    private static boolean isValidText(String[] parameters) {
+        
+        return false;
+    }
+
+    private static boolean isValidType(String[] parameters,String[] divisione) {
+        if((parameters[1].equals("message")||parameters[1].equals("notification")))
+        {
+            return true;
+        }
+        else if(parameters[1].equals("command")&&(divisione[1].equals("list")||divisione[1].equals("access")))
+        return true;
+
+        return false;
+    }
+
+    private static boolean isValidSendTo(String[] parameters) {
+        if(parameters[0].equals("*")||parameters[0].equals("#")||usernameExist(parameters[0]))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    private static Boolean usernameExist(String parameters) {
+
+        return true;
+    }
+
+    private static String keyboardT() {
+        String testo=keyboard.next();
+        System.out.println("    dentro keyboard.next "+testo);
+        return null;
     }
 
     public static void login() throws IOException {
@@ -74,24 +145,26 @@ public class App {
                     + "NO SPAZI" + '\n');
 
                     //leggo username da tastiera
-            String userName = keyboard.next();
+            String userName = keyboard.nextLine();
+            System.out.println("    dentro login  "+userName);
             if (isValidUserName(userName)) {
                 System.out.println("userName inserito correttamente!");
 
-                // messaggio da inviare per la login, ci metto dentro lo username scelto dall'utente
+                // messaggio da inviare per la login, ci metto  dentro lo username scelto dall'utente
                 Message m = new Message();
                 m.setSendTo("#");
                 m.setType("command");
                 m.setTextString("access");
                 m.setUserName(userName);
-                System.out.println("dentro login  ");
+                System.out.println("    dentro login  ");
                 sendMessage(m);
-                System.out.println("dentro login  after sendMessage");
+                System.out.println("    dentro login  after sendMessage");
 
                 //risposta del server alla login
                 if(isValidToServer()) // true valido false non valido
                 {
                     System.out.println("nome valido");
+                    setUserName(m.getUserName());
                     // roba visiva dove dici al client che si è collegato
                     break;
                 }
@@ -106,10 +179,17 @@ public class App {
         } while(true); //fino a quando il server non dice ok(wilun mi deve dire quando è ok)
     }
 
+    private static void setUserName(String userName) {
+            App.userName = userName;
+    }
+    public String getUserName() {
+        return userName;
+    }
+
     private static void  sendMessage(Message m) 
      {
         try {
-            System.out.println("dentro   sendMessage");
+            System.out.println("    dentro   sendMessage");
             ObjectMapper json = new ObjectMapper();
             String j = json.writeValueAsString(m);
             out.writeBytes(j + '\n');
@@ -118,9 +198,9 @@ public class App {
     }
     private static boolean isValidToServer() throws IOException
     {
-        System.out.println("dentro login  isValidToServer");
+        System.out.println("    dentro login  isValidToServer");
         Message ricevuto = inputClient.riceviMessaggio();
-        System.out.println("dentro login  after riceviMessaggio");
+        System.out.println("    dentro login  after riceviMessaggio");
         System.out.println(ricevuto);
         System.out.println(ricevuto.getTextString());
         if(ricevuto.getTextString().equals("OK"))

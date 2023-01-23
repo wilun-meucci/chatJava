@@ -8,6 +8,8 @@ import java.net.Socket;
 import java.net.http.WebSocket.Listener;
 import java.util.Scanner;
 
+import javax.lang.model.util.ElementScanner14;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -53,33 +55,108 @@ public class InputThreadClient extends Thread {
         Message m = mapper.readValue(msgRicevuto, Message.class);
         return m;
         */
-        System.out.println("dentro  riceviMessaggio");
+        System.out.println("    dentro  riceviMessaggio");
         String serverString = "";
+        DataInputStream incopia=in;
+        System.out.println("    dentro  riceviMessaggio serverString");
         ObjectMapper json = new ObjectMapper();
-        serverString = in.readLine();
-        System.out.println("dentro  riceviMessaggio readLine");
+        System.out.println("    dentro  riceviMessaggio json");
+        System.out.println("    dentro  riceviMessaggio "+incopia.toString());
+        serverString = incopia.readLine();
+        System.out.println("    dentro  riceviMessaggio readLine");
         Message pacchetto = json.readValue(serverString, Message.class);
-        System.out.println("dentro  riceviMessaggio readValue");
+        System.out.println("    dentro  riceviMessaggio readValue");
         System.out.println(pacchetto);
         System.out.println(pacchetto.getTextString());
+        System.out.println("    dentro  riceviMessaggio pacchetto.getString");
         return pacchetto;
     }
 
+    //ascolta quello che il server manda
     private void startListening() throws IOException {
+        System.out.println("    dentro startListening");
         Message pacchetto = riceviMessaggio();
+        //ricreo i singoli campi
+        String nome = pacchetto.getSendTo();
+        String tipo = pacchetto.getType();
+        String username = pacchetto.getUserName();
+        String stringa = pacchetto.getTextString();
         //controllo che il pacchetto sia formatto correttamente per me
 
-        //ricreo i singoli campi
-
         //controllo che tipo di messagio sia
-        controllType();
+        System.out.println("    dentro startListening prima di controlType");
+        controllType(pacchetto);
             
     }
-
-     private void controllType() {
+        //serve per fare istruzioni su un determianto tipo
+     private void controllType(Message pacchetto) {
         //controllo il tipo e mando nella funzione del giusto tipo
-
+        String nome = pacchetto.getSendTo();
+        String tipo = pacchetto.getType();
+        String username = pacchetto.getUserName();
+        String stringa = pacchetto.getTextString();
+        if(tipo.equals("message"))
+        {
+             System.out.println("    dentro if control type message");
+            tipoMessaggio(pacchetto);
+           
+        }
         
+    }
+
+    //controlliamo chi ha inviato il messaggio
+    private void tipoMessaggio(Message pacchetto) {
+        String nome = pacchetto.getSendTo();
+        System.out.println("    dentro tipo messaggio");
+        if(nome.equals("*")) //a tutti
+        {
+            messageToAll(pacchetto);
+            System.out.println("    dentro tipo messaggio if *");
+        }
+        else if(nome.equals("#"))//al server
+        {
+            messageToServer(pacchetto);
+            System.out.println("    dentro tipo messaggio if #");
+        }
+        else 
+        {
+            messageToSingle(pacchetto);
+            System.out.println("    dentro tipo messaggio else");
+        }
+
+    }
+
+
+    private void messageToSingle(Message pacchetto) {
+        System.out.println("    dentro messageToSingle");
+        String nome = pacchetto.getSendTo();
+        String tipo = pacchetto.getType();
+        String username = pacchetto.getUserName();
+        String stringa = pacchetto.getTextString();
+
+        System.out.println("DM: ["+username+"] "+stringa);
+    }
+
+
+    private void messageToServer(Message pacchetto) {
+        System.out.println("    dentro messageToServer");
+        String nome = pacchetto.getSendTo();
+        String tipo = pacchetto.getType();
+        String username = pacchetto.getUserName();
+        String stringa = pacchetto.getTextString(); 
+
+        System.out.println("from server: "+stringa);
+    }
+
+
+    private void messageToAll(Message pacchetto) {
+        System.out.println("    dentro messageToAll");
+        String nome = pacchetto.getSendTo();
+        String tipo = pacchetto.getType();
+        String username = pacchetto.getUserName();
+        String stringa = pacchetto.getTextString();
+
+        System.out.println("["+username+"] "+stringa);
     }
 
 
