@@ -312,7 +312,7 @@ public class ServerThread extends Thread {
         }
     }
 
-    private void sendMessage(Message m) {
+    public void sendMessage(Message m) {
 
         try {
 
