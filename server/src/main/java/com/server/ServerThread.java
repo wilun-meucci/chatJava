@@ -8,6 +8,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.regex.*;
 
+import javax.management.Notification;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ServerThread extends Thread {
@@ -30,8 +32,8 @@ public class ServerThread extends Thread {
             communicate();
         } catch (IOException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
-            System.out.println("ciao");
+            // e.printStackTrace();
+            // System.out.println("ciao");
         }
     }
 
@@ -39,12 +41,12 @@ public class ServerThread extends Thread {
 
         String userString = "";
         BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-        
+
         ObjectMapper json = new ObjectMapper();
 
-        //System.out.println(in);
+        // System.out.println(in);
 
-        while (true) {
+        while (client.isConnected()) {
 
             /*
              * if(recv.toUpperCase().equals("SPEGNI")) {
@@ -52,15 +54,16 @@ public class ServerThread extends Thread {
              * m.closeClient(server); return ; } String modifiedRecv = recv.toUpperCase();
              * out.writeBytes(modifiedRecv + '\n');
              */
+
             userString = in.readLine();
+
             System.out.println("Stringa ricevuta: " + userString);
             Message paccheto = json.readValue(userString, Message.class);
-            if (!isValidPacket(paccheto))
-            {
-                System.out.println("dentro if while communicate ");
+            if (!isValidPacket(paccheto)) {
+
                 break;
             }
-                
+
             ControlSendTo(paccheto);
 
         }
@@ -81,67 +84,62 @@ public class ServerThread extends Thread {
         String text = p.getTextString();
         String userName = p.getUserName();
 
-        if (isNullCamp(sendTo, type, text, userName))
-        {
-            System.out.println("    dentro isvalidpackage null");
-            return false; 
+        /*
+         * if (isNullCamp(sendTo, type, text, userName))
+         * {
+         * 
+         * return false;
+         * }
+         */
+
+        if (!isValidSendTo(sendTo)) {
+
+            return false;
         }
 
-        if (!isValidSendTo(sendTo))
-        {
-            System.out.println("    dentro isvalidpackage sendto");
-            return false; 
-        }
+        if (!isValidType(type)) {
 
-        if (!isValidType(type))
-        {
-            System.out.println("    dentro isvalidpackage type");
-            return false; 
+            return false;
         }
-;
-        if (!isValidText(text))
-        {
-            System.out.println("    dentro isvalidpackage text");
-            return true; 
+        ;
+        if (!isValidText(text)) {
+
+            return true;
         }
 
         /*
-        if (text.equals("access"))
-        {
-            System.out.println("    dentro isvalidpackage text.equals");
-            return true; 
+         * if (text.equals("access"))
+         * {
+         * System.out.println("    dentro isvalidpackage text.equals");
+         * return true;
+         * }
+         * 
+         */
+
+        if (!isValidUsername(userName)) {
+
+            return false;
         }
-
-        */
-
-        if (!isValidUsername(userName))
-        {
-            System.out.println("    dentro isvalidpackage username");
-            return false; 
-        }
-
 
         return true;
     }
 
     private boolean isValidSendTo(String sendTo) {
-        System.out.println("    dopo incima al isvalidsendto "+sendTo);
+
         Pattern pattern = Pattern.compile("[ ]", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(sendTo);
-        if (sendTo.equals("#") || sendTo.equals("*"))
-        {
-        System.out.println("    dopo primo if isvalidsendto");
+        if (sendTo.equals("#") || sendTo.equals("*")) {
+
             return true;
         }
-        if (sendTo.length()>= 4) {
-            System.out.println("    dopo secondo if lenght");
-            if (!matcher.find() && userNameExist(sendTo))
-            {
-                System.out.println("    dopo if find");
+        if (sendTo.length() >= 4) {
+
+            if (!matcher.find() && userNameExist(sendTo)) {
+
                 return true;
             }
         }
-        System.out.println("    dopo tutti gli if");
+
         return false;
     }
 
@@ -152,15 +150,18 @@ public class ServerThread extends Thread {
     }
 
     private boolean isValidText(String text) {
-        /*if (text.length() > 1 && text.equals("list") || text.equals("disconnect") || text.equals("connect")
-                || text.equals("access"))
-            return true;
-        return false;*/return true;
+        /*
+         * if (text.length() > 1 && text.equals("list") || text.equals("disconnect") ||
+         * text.equals("connect")
+         * || text.equals("access"))
+         * return true;
+         * return false;
+         */return true;
     }
 
     private boolean isValidUsername(String userName) {
-       // return userNameExist(userName);
-       return true;
+        // return userNameExist(userName);
+        return true;
     }
 
     private boolean isNullCamp(String sendTo, String type, String text, String userName) {
@@ -179,18 +180,14 @@ public class ServerThread extends Thread {
         Pattern pattern = Pattern.compile("[ ]", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(user);
         if (user.length() > 4) {
-            if (! matcher.find())
-            {
-                System.out.println("    dentro checkTheAccess matcher.find: " +  !matcher.find());
-                if (!userNameExist(user) && addUserToClient(user))
-                {
-                    System.out.println("    dentro checkTheAccess userNameExist(user): " +  userNameExist(user)+ " addUserToClient(user): "+ addUserToClient(user));
+            if (!matcher.find()) {
+
+                if (!userNameExist(user) && addUserToClient(user)) {
+
                     return true;
-                }
-                else
+                } else
                     return false;
-            }
-            else
+            } else
                 return false;
         } else
             return false;
@@ -200,8 +197,8 @@ public class ServerThread extends Thread {
         return UserManager.adduser(user, this);
     }
 
-    public void ControlSendTo(Message messageObj) {
-        System.out.println("dentro ControlSendTo ");
+    public void ControlSendTo(Message messageObj) throws IOException {
+
         if (messageObj.getSendTo().equals("#")) {
             messageToServer(messageObj);
         } else if (messageObj.getSendTo().equals("*")) {
@@ -216,14 +213,13 @@ public class ServerThread extends Thread {
         String type = messageObj.getType();
         String text = messageObj.getTextString();
         String userName = messageObj.getUserName();
-        if (userNameExist(sendTo))
-        {
+        if (userNameExist(sendTo)) {
             Message m = new Message();
             m.setUserName(sendTo);
             m.setTextString(text);
             m.setType(type);
             m.setSendTo(userName);
-            ServerThread  clientToSend = UserManager.getConnectedUsers().get(sendTo);
+            ServerThread clientToSend = UserManager.getConnectedUsers().get(sendTo);
             clientToSend.sendMessage(m);
 
         }
@@ -237,40 +233,48 @@ public class ServerThread extends Thread {
         String userName = messageObj.getUserName();
 
         Message m = new Message();
-            m.setUserName(sendTo);
-            m.setTextString(text);
-            m.setType(type);
-            m.setSendTo(userName);
-        
-        for (ServerThread clientToSend : UserManager.getConnectedUsers().values()) 
-        {
+        m.setUserName(sendTo);
+        m.setTextString(text);
+        m.setType(type);
+        m.setSendTo(userName);
+
+        for (ServerThread clientToSend : UserManager.getConnectedUsers().values()) {
+            if (clientToSend.equals(this)) {
+
+                continue;
+            }
             clientToSend.sendMessage(m);
         }
 
-        
-
     }
 
-    private void messageToServer(Message message) {
-        System.out.println("dentro messageToServer ");
+    private void messageToServer(Message message) throws IOException {
+
         String type = message.getType();
         String text = message.getTextString();
         String userName = message.getUserName();
         if (type.equals("command")) {
-            System.out.println("dentro command ");
+
             if (text.equals("access")) {
-                System.out.println("dentro access ");
+
                 if (checkTheAccess(userName)) {
-                    System.out.println("dentro checkTheAccess(userName) ");
+
                     Message m = new Message();
                     m.setUserName(message.getSendTo());
                     m.setTextString("OK");
                     m.setType(type);
                     m.setSendTo(userName);
                     this.sendMessage(m);
+                    Message messaggiooo = new Message("*", "message", "connected " + userName, "#");
+                    for (ServerThread clientToSend : UserManager.getConnectedUsers().values()) {
+                        if (clientToSend.equals(this)) {
+
+                            continue;
+                        }
+                        clientToSend.sendMessage(messaggiooo);
+                    }
                 }
-            }
-            else if(text.equals("list")) {
+            } else if (text.equals("list")) {
                 Message m = new Message();
                 m.setUserName(message.getSendTo());
                 m.setTextString(text);
@@ -280,7 +284,7 @@ public class ServerThread extends Thread {
 
                 this.sendMessage(m);
             } else {
-                System.out.println("dentro list else ");
+
                 Message m = new Message();
                 m.setSendTo(userName);
                 m.setType("message");
@@ -288,8 +292,26 @@ public class ServerThread extends Thread {
                 m.setUserName(message.getSendTo());
                 this.sendMessage(m);
             }
-        } else {
-            System.out.println("dentro command else ");
+        }
+
+        else if (type.equals("notification")) {
+            if (text.equals("disconnected")) {
+                UserManager.removeUser(this, userName);
+                Message messaggiooo2 = new Message("*", "message", "disconnected " + userName, "#");
+                for (ServerThread clientToSend : UserManager.getConnectedUsers().values()) {
+                    if (clientToSend.equals(this)) {
+
+                        continue;
+                    }
+                    clientToSend.sendMessage(messaggiooo2);
+                }
+                client.close();
+                System.out.println("utente disconnesso: " + userName);
+            }
+        }
+
+        else {
+
             Message m = new Message();
             m.setSendTo(userName);
             m.setType("message");
@@ -300,22 +322,22 @@ public class ServerThread extends Thread {
     }
 
     private void sendMessage(Message m) {
-        System.out.println("dentro sendMessage ");
+
         try {
-            System.out.println("dentro try ");
+
             ObjectMapper json = new ObjectMapper();
             String j = json.writeValueAsString(m);
-            System.out.println("dentro try json");
+
             out.writeBytes(j + '\n');
-            System.out.println("dentro try writeBytes");
+
         } catch (Exception a) {
         }
-        
+
     }
 
     private boolean userNameExist(String userName) // call messageToServer
     {
-        System.out.println("    dopo usernameexist "+userName);
+
         return UserManager.checkUser(userName); // true if exist || false if not exist
     }
 }

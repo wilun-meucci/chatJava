@@ -51,7 +51,7 @@ public class App {
 
     }
 
-    private static void startChat() 
+    private static void startChat() throws IOException 
     {
         
         while (true)
@@ -83,7 +83,7 @@ public class App {
             {
                m.setType(parameters[1]);
             }
-                
+          
                m.setTextString(divisione[1]);
              
                
@@ -98,7 +98,17 @@ public class App {
             m.setSendTo("#");
             m.setType("message");*/
             sendMessage(m);
-            
+             
+            if(divisione[1].equals("disconnected") && parameters[1].equals("notification"))
+            {
+                System.out.println("ti sei disconnesso");
+                try {
+                    inputClient.stop();
+                } catch (Exception a) {
+                }
+                
+                System.exit(0);
+            }
         }
     }
 
@@ -184,7 +194,7 @@ public class App {
         return userName;
     }
 
-    private static void  sendMessage(Message m) 
+    public static void  sendMessage(Message m) 
      {
         try {
             
@@ -197,7 +207,7 @@ public class App {
     private static boolean isValidToServer() throws IOException
     {
         Message ricevuto = inputClient.riceviMessaggio();
-        System.out.println("risposta del server dentro isValidToServer"+ricevuto.getTextString());
+        
         if(ricevuto.getTextString().equals("OK"))
             return true;
         
@@ -210,7 +220,7 @@ public class App {
         Pattern pattern = Pattern.compile("[ ]", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(userName);
 
-        if (userName.length() >= 4) {
+        if (userName.length() >= 5) {
             if (!matcher.find()) {
                 return true;
             } else

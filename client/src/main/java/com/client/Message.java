@@ -15,6 +15,12 @@ public class Message {
         this.userName = userName;
         this.content = content;
     }
+    public Message(String sendTo, String type, String textString, String userName) {
+        this.sendTo = sendTo;
+        this.type = type;
+        this.textString = textString;
+        this.userName = userName;
+    }
     public Message() {
     }
     public Set<String> getContent() {
