@@ -54,7 +54,7 @@ public class ServerThread extends Thread {
              * m.closeClient(server); return ; } String modifiedRecv = recv.toUpperCase();
              * out.writeBytes(modifiedRecv + '\n');
              */
-
+                
             userString = in.readLine();
 
             System.out.println("Stringa ricevuta: " + userString);
@@ -237,14 +237,7 @@ public class ServerThread extends Thread {
         m.setTextString(text);
         m.setType(type);
         m.setSendTo(userName);
-
-        for (ServerThread clientToSend : UserManager.getConnectedUsers().values()) {
-            if (clientToSend.equals(this)) {
-
-                continue;
-            }
-            clientToSend.sendMessage(m);
-        }
+        sendMessageToAll(m);
 
     }
 
@@ -265,14 +258,7 @@ public class ServerThread extends Thread {
                     m.setType(type);
                     m.setSendTo(userName);
                     this.sendMessage(m);
-                    Message messaggiooo = new Message("*", "message", "connected " + userName, "#");
-                    for (ServerThread clientToSend : UserManager.getConnectedUsers().values()) {
-                        if (clientToSend.equals(this)) {
-
-                            continue;
-                        }
-                        clientToSend.sendMessage(messaggiooo);
-                    }
+                    sendMessageToAll(new Message("*", "message", "connected " + userName, "#"));
                 }
             } else if (text.equals("list")) {
                 Message m = new Message();
@@ -297,16 +283,10 @@ public class ServerThread extends Thread {
         else if (type.equals("notification")) {
             if (text.equals("disconnected")) {
                 UserManager.removeUser(this, userName);
-                Message messaggiooo2 = new Message("*", "message", "disconnected " + userName, "#");
-                for (ServerThread clientToSend : UserManager.getConnectedUsers().values()) {
-                    if (clientToSend.equals(this)) {
-
-                        continue;
-                    }
-                    clientToSend.sendMessage(messaggiooo2);
-                }
+                sendMessageToAll(new Message("*", "message", "disconnected " + userName, "#"));
                 client.close();
                 System.out.println("utente disconnesso: " + userName);
+                
             }
         }
 
@@ -318,6 +298,17 @@ public class ServerThread extends Thread {
             m.setTextString("KO");
             m.setUserName(message.getSendTo());
             this.sendMessage(m);
+        }
+    }
+
+    private void sendMessageToAll(Message message) 
+    {
+        for (ServerThread clientToSend : UserManager.getConnectedUsers().values()) {
+            if (clientToSend.equals(this)) {
+
+                continue;
+            }
+            clientToSend.sendMessage(message);
         }
     }
 
